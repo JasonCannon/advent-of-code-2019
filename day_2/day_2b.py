@@ -11,8 +11,6 @@ def test(L, a, b):
             L[l] = L[j]+L[k]
         elif op == 2:
             L[l] = L[j]*L[k]
-        else:
-            print("???")
         i += 4
     return L[0]
 

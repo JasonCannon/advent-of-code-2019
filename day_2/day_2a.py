@@ -9,7 +9,5 @@ while L[i] != 99:
         L[l] = L[j]+L[k]
     elif op == 2:
         L[l] = L[j]*L[k]
-    else:
-        print("???")
     i += 4
 print(L[0])
