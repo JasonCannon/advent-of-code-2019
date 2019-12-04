@@ -17,5 +17,4 @@ def test(L, a, b):
 for a in range(100):
     for b in range(100):
         if test(L[::], a, b) == 19690720:
-            print("a = {}, b = {}".format(a, b))
             print(100*a+b)
