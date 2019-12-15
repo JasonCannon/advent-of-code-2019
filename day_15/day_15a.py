@@ -1,0 +1,107 @@
+from collections import defaultdict
+
+class IntCode:
+    def __init__(self, filename):
+        f = open(filename, 'r').readline().strip().split(',')
+        self.L = defaultdict(int, list(zip(range(len(f)), map(int, f))))
+        self.i, self.rel_base = 0, 0
+        self.inp, self.out = [], []
+
+    def m_get(self, j, p):
+        if p == 0:
+            return self.L[j]
+        elif p == 1:
+            return j
+        elif p == 2:
+            return self.L[self.rel_base+j]
+
+    def m_set(self, j, p):
+        if p == 0 or p == 1:
+            return j
+        elif p == 2:
+            return self.rel_base+j
+
+    def run(self):
+        while self.L[self.i] != 99:
+            I = str(self.L[self.i]).rjust(5, '0')
+            self.i += 1
+            op = int(I[-2:])
+            p1, p2, p3 = map(int, I[-3:-6:-1])
+            # Handle ops
+            if op == 1:
+                self.L[self.m_set(self.L[self.i+2], p3)] = self.m_get(self.L[self.i], p1) + self.m_get(self.L[self.i+1], p2)
+                self.i += 3
+            elif op == 2:
+                self.L[self.m_set(self.L[self.i+2], p3)] = self.m_get(self.L[self.i], p1) * self.m_get(self.L[self.i+1], p2)
+                self.i += 3
+            elif op == 3:
+                if not self.inp:
+                    self.i -= 1
+                    return False
+                self.L[self.m_set(self.L[self.i], p1)] = int(self.inp.pop(0))
+                self.i += 1
+            elif op == 4:
+                self.out.append(self.m_get(self.L[self.i], p1))
+                self.i += 1
+            elif op == 5:
+                if self.m_get(self.L[self.i], p1):
+                    self.i = self.m_get(self.L[self.i+1], p2)
+                else:
+                    self.i += 2
+            elif op == 6:
+                if not self.m_get(self.L[self.i], p1):
+                    self.i = self.m_get(self.L[self.i+1], p2)
+                else:
+                    self.i += 2
+            elif op == 7:
+                self.L[self.m_set(self.L[self.i+2], p3)] = (1 if self.m_get(self.L[self.i], p1) < self.m_get(self.L[self.i+1], p2) else 0)
+                self.i += 3
+            elif op == 8:
+                self.L[self.m_set(self.L[self.i+2], p3)] = (1 if self.m_get(self.L[self.i], p1) == self.m_get(self.L[self.i+1], p2) else 0)
+                self.i += 3
+            elif op == 9:
+                self.rel_base += self.m_get(self.L[self.i], p1)
+                self.i += 1
+        return True
+
+IC = IntCode("day_15.in")
+
+N, S, W, E = 1, 2, 3, 4
+R = {N:S, S:N, W:E, E:W}
+G = defaultdict(lambda x:0, {(0, 0):3})
+
+def move(p, d):
+    if d == N:
+        return (p[0], p[1]+1)
+    elif d == S:
+        return (p[0], p[1]-1)
+    elif d == W:
+        return (p[0]-1, p[1])
+    elif d == E:
+        return (p[0]+1, p[1])
+
+def dfs(p):
+    for d in [N, S, W, E]:
+        if move(p, d) not in G:
+            IC.inp.append(d)
+            IC.run()
+            G[move(p, d)] = IC.out.pop(0)
+            if G[move(p, d)] != 0:
+                dfs(move(p, d))
+                IC.inp.append(R[d])
+                IC.run()
+                IC.out.pop(0)
+dfs((0, 0))
+
+Q = [((0, 0), 0)]
+dist = dict()
+while Q:
+    p, t = Q.pop(0)
+    if p in dist:
+        continue
+    dist[p] = t
+    for d in [N, S, W, E]:
+        if G[move(p, d)]:
+            Q.append((move(p, d), t+1))
+
+print(dist[list(G.keys())[list(G.values()).index(2)]])
