@@ -97,4 +97,5 @@ while True:
         if i in Q: C[i].inp += Q[i]
         if not C[i].inp: C[i].inp.append(-1)
         C[i].run()
+
 print(p1[1])
