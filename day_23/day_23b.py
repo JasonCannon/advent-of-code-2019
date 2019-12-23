@@ -84,8 +84,7 @@ while True:
     if all(not len(C[i].out) for i in range(50)) and p1:
         C[0].inp += [*p1]
         C[0].run()
-        if p2 and p1[1] == p2[1]:
-            break
+        if p2 and p1[1] == p2[1]: break
         p2 = p1
     for i in range(50):
         while C[i].out:
@@ -94,8 +93,7 @@ while True:
             if d == 255: p1 = (x, y)
             else: Q[d] += [x, y]
     for i in range(50):
-        if i in Q: C[i].inp += Q[i]
-        if not C[i].inp: C[i].inp.append(-1)
+        C[i].inp += Q.get(i, [-1])
         C[i].run()
 
 print(p1[1])
